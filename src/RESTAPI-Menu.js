@@ -1,5 +1,6 @@
 import  express from 'express';
 import { requests } from './Kafka_Request.js';
+import { getIPAddress } from './Kafka_Request_VM.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -27,7 +28,8 @@ app.get('/services', (req, res) => {
   res.status(200).json(questions);
 });
 
-app.get('/services/ipaddress', (req, res) => {
+app.get('/services/ipaddress', async (req, res) => {
+  await getIPAddress().catch(m => { console.log("\nVM is NOT created : \n") } )
   console.log(ips[1]);
   res.status(200).json(ips[1]);
 });
