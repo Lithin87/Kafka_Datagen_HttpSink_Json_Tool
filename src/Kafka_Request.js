@@ -60,7 +60,7 @@ const schema_replace_t = (template_user) => { if( template_user != "" && templat
 const schema_replace_url = (url) => { if( url != "" && url != undefined) ld.set(sink_url, ['config', 'http.api.url'], url);  return JSON.stringify(sink_url)}
 
 
-const url2 = (template) =>  request({ url: ips[0]+'/connectors', method: 'POST', data: template }).then(printData).catch(printError) 
+const connector_call = (template) =>  request({ url: ips[0]+'/connectors', method: 'POST', data: template }).then(printData).catch(printError) 
 const url3 = (template) => request({ url: ips[0]+'/connectors', method: 'POST', data: template}).then(printData).catch(printError)
 
 
@@ -69,22 +69,22 @@ const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDa
 
 const  req3 = async (schema,url) =>     { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await url2(schema_replace_s(JSON.stringify(schema)));
-const resp2 = await (url2(schema_replace_url(url)));
+const resp1 =  await connector_call(schema_replace_s(JSON.stringify(schema)));
+const resp2 = await (connector_call(schema_replace_url(url)));
 return {resp1, resp2 , error}
 }
 
 const req4 = async (schema,url) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await url2(schema_replace_f(JSON.stringify(schema)));
-const resp2 = await (url2(schema_replace_url(url)));
+const resp1 =  await connector_call(schema_replace_f(JSON.stringify(schema)));
+const resp2 = await (connector_call(schema_replace_url(url)));
 return {resp1, resp2 , error}
 }
 
 const req5 = async (schema,url) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await url2(schema_replace_t(schema));
-const resp2 = await (url2(schema_replace_url(url)));
+const resp1 =  await connector_call(schema_replace_t(schema));
+const resp2 = await (connector_call(schema_replace_url(url)));
 return {resp1, resp2 , error}
 }
 
@@ -116,7 +116,8 @@ return { resp_status, status};
 const printError = (response) => { 
     let msg = jp.query(response, "$..response.data.message");
    if( msg.length != 0) 
-      {console.dir(msg); return msg; }
+      {console.dir(msg); 
+        return msg; }
       else
       { let str = "Containers aren't up..Either start the containers or Wait";
         let str1 = "VM is deleted";
