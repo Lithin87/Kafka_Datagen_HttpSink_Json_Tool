@@ -75,7 +75,7 @@ app.post('/services/:id', (req, res) => {
   const body = req.body;
   const category = req.query.category;
 
-  const printSuccess = s => {  res.status(200).json({ message1: s })};
+  const printSuccess = s => {  res.status(200).json({ message: s })};
   const printError = error => {  res.status(400).json({ message: "Error occured. "+error})};
 
   
