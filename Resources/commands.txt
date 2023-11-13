@@ -196,11 +196,11 @@ sudo docker pull confluentinc/cp-zookeeper:7.3.3
   "connect.name": "lithin.personal.ust_data",
   "fields": [
     {
-      "name": "store_id",
+      "name": "boots_id",
       "type": "int"
     },
     {
-      "name": "order_lines",
+      "name": "delhi_lines",
       "type": {
         "items": {
           "connect.name": "lithin.personal.order_line",
