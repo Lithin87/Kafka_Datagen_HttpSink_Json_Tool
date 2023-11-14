@@ -74,21 +74,21 @@ app.post('/services/:id', (req, res) => {
   const itemId = req.params.id;
   const body = req.body;
   console.dir(body, { depth : null});
-  const category = req.query.category;
-
+  const rate = req.query.rate;
+  console.log(rate);
   const printSuccess = s => {  res.status(200).json({ message: s })};
   const printError = error => {  res.status(400).json({ message: "Error occured. "+error})};
 
   
     switch (parseInt(itemId)) {
       case 3:
-          requests[3](body.schema,body.url).then(printSuccess);
+          requests[3](body.schema,body.url,rate).then(printSuccess);
           break;
       case 4:
-          requests[4](body.schema,body.url).then(printSuccess).catch(printError);
+          requests[4](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 5:
-          requests[5](body.schema,body.url).then(printSuccess).catch(printError);
+          requests[5](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 9:
           requests[9](body.data).then((s) => res.status(200).send(s)).catch(printError);

@@ -20,7 +20,8 @@ let template = {
     "name": "Datagen_pre_template",
     "schema.string": "{\"connect.name\":\"ust.boots\",\"fields\":[{\"name\":\"Name\",\"type\":{\"type\":\"string\",\"arg.properties\":{\"regex\":\"User_[1-9]{0,1}\"}}},{\"name\":\"office\",\"type\":\"string\"},{\"name\":\"user_id\",\"type\":\"string\"},{\"name\":\"employee_id\",\"type\":\"long\"},{\"name\":\"cubicle_num\",\"type\":\"int\"}],\"name\":\"boots\",\"namespace\":\"ust\",\"type\":\"record\"}",
     "tasks.max": "1",
-    "kafka.topic": "Template_Schema"
+    "kafka.topic": "Template_Schema",
+    "max.interval" : "500"
   }
 };
 
@@ -31,7 +32,8 @@ let file_schema = {
     "name": "Datagen_file_schema",
     "schema.string": "{\"connect.name\":\"ust.boots\",\"name\":\"boots\",\"namespace\":\"ust\",\"type\":\"record\",\"fields\":[{\"name\":\"store_id\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"order_lines\",\"type\":{\"type\":\"array\",\"items\":{\"name\":\"order_line\",\"type\":\"record\",\"fields\":[{\"name\":\"product_id\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"category\",\"type\":{\"type\":\"string\",\"arg.properties\":{\"regex\":\"User_[1-9]{0,1}\"}}},{\"name\":\"quantity\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"unit_price\",\"type\":{\"type\":\"float\",\"arg.properties\":{\"range\":{\"min\":0.1,\"max\":10}}}},{\"name\":\"net_price\",\"type\":{\"type\":\"float\",\"arg.properties\":{\"range\":{\"min\":0.1,\"max\":10}}}}]},\"arg.properties\":{\"length\":{\"min\":1,\"max\":5}}}}]}",
     "tasks.max": "1",
-    "kafka.topic": "Template_Schema"
+    "kafka.topic": "Template_Schema",
+    "max.interval" : "500"
   }
 };
 
@@ -48,14 +50,16 @@ let sink_url = {
     "request.method": "post",
     "reporter.result.topic.replication.factor": "1",
     "reporter.error.topic.replication.factor": "1",
-    "reporter.bootstrap.servers": "broker:29092"
+    "reporter.bootstrap.servers": "broker:29092",
+    "tasks.max": "1",
+    "consumer.max.poll.records":"1"
   }
 };
 
 
-const schema_replace_s = (schema) => { if( schema != "" && schema != undefined) ld.set(template, ['config', 'schema.string'], schema); console.log(template); return JSON.stringify(template)}
-const schema_replace_f = (json) => { if( json != "" && json != undefined) ld.set(file_schema, ['config', 'schema.string'], JSON.stringify(generate(json)));  return JSON.stringify(file_schema) }
-const schema_replace_t = (template_user) => { if( template_user != "" && template_user != undefined) return template_user; else  return JSON.stringify(template)}
+const schema_replace_s = (schema) => { if( schema ) ld.set(template, ['config', 'schema.string'], schema); console.log(template); return JSON.stringify(template)}
+const schema_replace_f = (json,rate) => { if( json ) ld.set(file_schema, ['config', 'schema.string'], JSON.stringify(generate(json)));  return JSON.stringify(file_schema) }
+const schema_replace_t = (template_user) => { if( template_user ) return template_user; else  return JSON.stringify(template)}
 
 const schema_replace_url = (url) => { if( url != "" && url != undefined) ld.set(sink_url, ['config', 'http.api.url'], url);  return JSON.stringify(sink_url)}
 
@@ -67,21 +71,21 @@ const url3 = (template) => request({ url: ips[0]+'/connectors', method: 'POST', 
 const req1 =  () =>  createInstance().catch(e => {return e});
 const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDataFull ).catch(printError)    
 
-const  req3 = async (schema,url) =>     { let error ="";
+const  req3 = async (schema,url,rate) =>     { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
 const resp1 =  await connector_call(schema_replace_s(JSON.stringify(schema)));
 const resp2 = await (connector_call(schema_replace_url(url)));
 return {resp1, resp2 , error}
 }
 
-const req4 = async (schema,url) => { let error ="";
+const req4 = async (schema,url,rate) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await connector_call(schema_replace_f(JSON.stringify(schema)));
+const resp1 =  await connector_call(schema_replace_f(JSON.stringify(schema),rate));
 const resp2 = await (connector_call(schema_replace_url(url)));
 return {resp1, resp2 , error}
 }
 
-const req5 = async (schema,url) => { let error ="";
+const req5 = async (schema,url,rate) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
 const resp1 =  await connector_call(schema_replace_t(schema));
 const resp2 = await (connector_call(schema_replace_url(url)));
