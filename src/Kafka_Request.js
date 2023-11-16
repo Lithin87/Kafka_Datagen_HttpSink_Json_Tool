@@ -56,9 +56,30 @@ let sink_url = {
   }
 };
 
+function flattenObject(obj) {
+  let result = {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        result = { ...result, ...flattenObject(obj[key]) };
+      } else {
+        result[key] = obj[key];
+      }
+    }
+  }
+  return result;
+}
 
-const schema_replace_s = (schema) => { if( schema ) ld.set(template, ['config', 'schema.string'], schema); console.log(template); return JSON.stringify(template)}
-const schema_replace_f = (json,rate) => { if( json ) ld.set(file_schema, ['config', 'schema.string'], JSON.stringify(generate(json)));  return JSON.stringify(file_schema) }
+const schema_replace_s = (schema,rate) => { 
+  if( schema ) ld.set(template, ['config', 'schema.string'], schema); 
+  if( rate ) ld.set(template, ['config', 'max.interval'], rate); 
+  return JSON.stringify(template)}
+
+const schema_replace_f = (json,rate) => {
+   if( json ) ld.set(file_schema, ['config', 'schema.string'], JSON.stringify(generate(json)));  
+   if( rate ) ld.set(file_schema, ['config', 'max.interval'], rate);  
+   return JSON.stringify(file_schema) }
+
 const schema_replace_t = (template_user) => { if( template_user ) return template_user; else  return JSON.stringify(template)}
 
 const schema_replace_url = (url) => { if( url != "" && url != undefined) ld.set(sink_url, ['config', 'http.api.url'], url);  return JSON.stringify(sink_url)}
@@ -73,23 +94,23 @@ const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDa
 
 const  req3 = async (schema,url,rate) =>     { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await connector_call(schema_replace_s(JSON.stringify(schema)));
-const resp2 = await (connector_call(schema_replace_url(url)));
-return {resp1, resp2 , error}
+const SourceConnector  =  await connector_call(schema_replace_s(JSON.stringify(schema),rate));
+const DestinationConnector = await (connector_call(schema_replace_url(url)));
+return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
 const req4 = async (schema,url,rate) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await connector_call(schema_replace_f(JSON.stringify(schema),rate));
-const resp2 = await (connector_call(schema_replace_url(url)));
-return {resp1, resp2 , error}
+const SourceConnector =  await connector_call(schema_replace_f(JSON.stringify(schema),rate));
+const DestinationConnector = await (connector_call(schema_replace_url(url)));
+return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
-const req5 = async (schema,url,rate) => { let error ="";
+const req5 = async (schema,url) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const resp1 =  await connector_call(schema_replace_t(schema));
-const resp2 = await (connector_call(schema_replace_url(url)));
-return {resp1, resp2 , error}
+const SourceConnector =  await connector_call(schema_replace_t(schema));
+const DestinationConnector = await (connector_call(schema_replace_url(url)));
+return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
 const req6 =  () =>   deleteInstance().catch(e => {return e}); 
@@ -102,17 +123,18 @@ const dum ="";
 export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, req9];
 
 const  del_connectors = async () => { 
-  let resp_status = "";
-  let status =[];
+  let TotalConnectors = 'No Connectors present';
+  let STATUS =[];
   const response = await  request({ url: ips[0]+'/connectors'}).catch(s=> error.del_con = s);
-  if ( response.data.length  == 0)
-  resp_status = 'No Connectors present';
-  else{
+  if ( response.data.length  !== 0)
+  {
     response.data.forEach( (element) => {
-      request({ url: ips[0]+`/connectors/${element}`, method: 'delete' });
-      status.push(element + " : DELETED")
-  }) }
-return { resp_status, status};
+       request({ url: ips[0]+`/connectors/${element}`, method: 'delete' }); 
+       STATUS.push(element + " : DELETED")
+      });
+    return "SourceConnector : Deleted \nDestinationConnector : Deleted";
+}
+  return TotalConnectors;
 }
 
 

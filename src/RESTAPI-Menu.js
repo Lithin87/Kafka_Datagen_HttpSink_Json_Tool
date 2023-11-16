@@ -29,9 +29,9 @@ app.get('/services', (req, res) => {
 });
 
 app.get('/services/ipaddress', async (req, res) => {
-  await getIPAddress().catch(m => { console.log("\nVM is NOT created : \n") } )
+  await getIPAddress().then(res.status(200).json(ips[1])).catch(m => { console.log("\nVM is NOT created : \n") } )
   console.log(ips[1]);
-  res.status(200).json(ips[1]);
+  res.status(204);
 });
 
 function checkSuccess(s) {
@@ -91,7 +91,7 @@ app.post('/services/:id', (req, res) => {
           requests[5](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 9:
-          requests[9](body.data).then((s) => res.status(200).send(s)).catch(printError);
+          requests[9](body.data).then(printSuccess).catch(printError);
           break;
       default:
         res.status(404).json({ message: "Invalid index for POST. Use only 3,4,5"})

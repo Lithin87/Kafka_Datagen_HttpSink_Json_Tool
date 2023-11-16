@@ -80,11 +80,17 @@ export async function getIPAddress() {
   const computeClient = new InstancesClient();
   const instances = await computeClient.get({ instance: instanceName, project, zone: zone });
   const ipAddress = instances[0]["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
+  if(ipAddress)
+  {
   const ConnectorBaseUrl = 'http://' + ipAddress + ':8083';
   const ClusterUrl = 'http://' + ipAddress + ':9021';
   const SchemaRegistryUrl = 'http://' + ipAddress + ':8081';
   const BrokerUrl = 'http://' + ipAddress + ':9101';
   global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl];
+  }else{
+    global.ips = [];
+    throw Error;
+  }
 }
 
 
