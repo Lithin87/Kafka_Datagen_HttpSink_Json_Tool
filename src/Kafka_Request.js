@@ -46,7 +46,7 @@ let sink_url = {
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "io.confluent.connect.avro.AvroConverter",
     "topics": "Template_Schema",
-    "http.api.url": "https://kafkasinkcollector-xdms6u477a-uc.a.run.app",
+    "http.api.url": "https://kafkasinkcollector-bxlquyhk2q-uc.a.run.app",
     "request.method": "post",
     "reporter.result.topic.replication.factor": "1",
     "reporter.error.topic.replication.factor": "1",
