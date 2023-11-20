@@ -73,9 +73,8 @@ app.get('/services/:id', (req, res) => {
 app.post('/services/:id', (req, res) => {
   const itemId = req.params.id;
   const body = req.body;
-  console.dir(body, { depth : null});
+  // console.dir(body, { depth : null});
   const rate = req.query.rate;
-  console.log(rate);
   const printSuccess = s => {  res.status(200).json({ message: s })};
   const printError = error => {  res.status(400).json({ message: "Error occured. "+error})};
 

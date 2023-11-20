@@ -82,11 +82,10 @@ const schema_replace_f = (json,rate) => {
 
 const schema_replace_t = (template_user) => { if( template_user ) return template_user; else  return JSON.stringify(template)}
 
-const schema_replace_url = (url) => { if( url != "" && url != undefined) ld.set(sink_url, ['config', 'http.api.url'], url);  return JSON.stringify(sink_url)}
+const schema_replace_url = (url) => { if( url != "" && url != undefined) ld.set(sink_url, ['config', 'http.api.url'], url); return JSON.stringify(sink_url)}
 
 
 const connector_call = (template) =>  request({ url: ips[0]+'/connectors', method: 'POST', data: template }).then(printData).catch(printError) 
-const url3 = (template) => request({ url: ips[0]+'/connectors', method: 'POST', data: template}).then(printData).catch(printError)
 
 
 const req1 =  () =>  createInstance().catch(e => {return e});
@@ -117,7 +116,6 @@ const req6 =  () =>   deleteInstance().catch(e => {return e});
 const req7 =  () => {   }
 const req8 =  () =>  del_connectors() ;
 const req9 = (msg) => chatgpt(msg) ;
-// const request6 = () => { method: 'POST', url: 'https://example.com/api/data2', body: { name: 'John', age: 30 } };
 
 const dum ="";
 export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, req9];
