@@ -100,7 +100,8 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 
 const req4 = async (schema,url,rate) => { let error ="";
 const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
-const SourceConnector =  await connector_call(schema_replace_f(JSON.stringify(schema),rate));
+if (typeof schema === 'object')  schema = JSON.stringify(schema);
+const SourceConnector =  await connector_call(schema_replace_f(schema,rate));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }

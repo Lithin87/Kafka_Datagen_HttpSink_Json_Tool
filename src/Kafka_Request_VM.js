@@ -4,8 +4,8 @@ import { auth } from 'google-auth-library';
 const project = 'civil-being-405417';
 const zone = 'us-central1-a'
 const instanceName = 'kafkavm'
-const machineType = 'e2-standard-4';
-const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';
+const machineType = 'e2-standard-4';  // not used becasue of machine image
+const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';  // not used becasue of machine image
 const machineImage = 'projects/civil-being-405417/global/machineImages/mimic-data-framework-ust'; 
 
 process.env.GOOGLE_APPLICATION_CREDENTIALS = 'gcloud.json';
