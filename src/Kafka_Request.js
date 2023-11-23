@@ -48,13 +48,20 @@ let sink_url = {
     "topics": "Template_Schema",
     "http.api.url": "https://kafkasinkcollector-bxlquyhk2q-uc.a.run.app",
     "request.method": "post",
+    "reporter.result.topic.name": "${connector}-success",
     "reporter.result.topic.replication.factor": "1",
+    "reporter.result.topic.partitions": "1",
+    "reporter.error.topic.name": "${connector}-error",
     "reporter.error.topic.replication.factor": "1",
+    "reporter.error.topic.partitions": "1",
     "reporter.bootstrap.servers": "broker:29092",
     "tasks.max": "1",
     "consumer.max.poll.records":"1",
     "errors.deadletterqueue.topic.name": "error_topic",
-    "errors.deadletterqueue.topic.replication.factor": "1"
+    "errors.deadletterqueue.topic.replication.factor": "1",
+    "errors.tolerance": "all",
+    "errors.retry.timeout": "1000",
+    "errors.retry.delay.max.ms": "1000"
   }
 };
 
@@ -94,14 +101,14 @@ const req1 =  () =>  createInstance().catch(e => {return e});
 const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDataFull ).catch(printError)    
 
 const  req3 = async (schema,url,rate) =>     { let error ="";
-const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
+const response = await delete_topics();
 const SourceConnector  =  await connector_call(schema_replace_s(JSON.stringify(schema),rate));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
 const req4 = async (schema,url,rate) => { let error ="";
-const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
+const response = await delete_topics();
 if (typeof schema === 'object')  schema = JSON.stringify(schema);
 const SourceConnector =  await connector_call(schema_replace_f(schema,rate));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
@@ -109,10 +116,15 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 }
 
 const req5 = async (schema,url) => { let error ="";
-const response = await request({ url: ips[2]+'/subjects/'+"Template_Schema-value", method: 'DELETE'}).catch(s=> error = s.code);
+const response = await delete_topics();
 const SourceConnector =  await connector_call(schema_replace_t(schema));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
+}
+
+async function delete_topics() {
+  await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
+  return 0;
 }
 
 const req6 =  () =>   deleteInstance().catch(e => {return e}); 
@@ -126,6 +138,14 @@ export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, re
 const  del_connectors = async () => { 
   let TotalConnectors = 'No Connectors present';
   let STATUS =[];
+
+  // http://34.133.7.160:8082/v3/clusters/MnChXrKqS3CQZ0Ay6vRjMw/topics/HttpSinkConnectorConnector_0-error
+  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
+  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
+  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
+  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
+
+
   const response = await  request({ url: ips[0]+'/connectors'}).catch(s=> error.del_con = s);
   if ( response.data.length  !== 0)
   {

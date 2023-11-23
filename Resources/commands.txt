@@ -195,3 +195,5 @@ sudo docker pull confluentinc/cp-zookeeper:7.3.3
 {
    "data": "pls give a  sample json message with first key named as name, age, address, car"
 }
+
+// http://34.133.7.160:8082/v3/clusters/MnChXrKqS3CQZ0Ay6vRjMw/topics/HttpSinkConnectorConnector_0-error
