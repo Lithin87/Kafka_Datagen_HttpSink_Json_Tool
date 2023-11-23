@@ -52,7 +52,9 @@ let sink_url = {
     "reporter.error.topic.replication.factor": "1",
     "reporter.bootstrap.servers": "broker:29092",
     "tasks.max": "1",
-    "consumer.max.poll.records":"1"
+    "consumer.max.poll.records":"1",
+    "errors.deadletterqueue.topic.name": "error_topic",
+    "errors.deadletterqueue.topic.replication.factor": "1"
   }
 };
 
@@ -114,7 +116,7 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 }
 
 const req6 =  () =>   deleteInstance().catch(e => {return e}); 
-const req7 =  () => {   }
+const req7 =  () => cluster_id();
 const req8 =  () =>  del_connectors() ;
 const req9 = (msg) => chatgpt(msg) ;
 
@@ -136,6 +138,14 @@ const  del_connectors = async () => {
   return TotalConnectors;
 }
 
+
+const  cluster_id = async () => { 
+  const response = await request({ url: ips[0]}).catch(s=> error.del_con = s);
+  if ( response.data !== 0)
+  { 
+    return ips[1]+"/clusters/"+response.data.kafka_cluster_id+"/management/topics/error_topic/overview";
+  }
+}
 
 
 const printError = (response) => { 
