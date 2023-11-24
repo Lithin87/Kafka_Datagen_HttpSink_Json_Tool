@@ -100,14 +100,14 @@ const connector_call = (template) =>  request({ url: ips[0]+'/connectors', metho
 const req1 =  () =>  createInstance().catch(e => {return e});
 const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDataFull ).catch(printError)    
 
-const  req3 = async (schema,url,rate) =>     { let error ="";
+const  req3 = async (schema,url,rate) =>     { 
 const response = await delete_topics();
 const SourceConnector  =  await connector_call(schema_replace_s(JSON.stringify(schema),rate));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
-const req4 = async (schema,url,rate) => { let error ="";
+const req4 = async (schema,url,rate) => { 
 const response = await delete_topics();
 if (typeof schema === 'object')  schema = JSON.stringify(schema);
 const SourceConnector =  await connector_call(schema_replace_f(schema,rate));
@@ -115,7 +115,7 @@ const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
-const req5 = async (schema,url) => { let error ="";
+const req5 = async (schema,url) => { 
 const response = await delete_topics();
 const SourceConnector =  await connector_call(schema_replace_t(schema));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
@@ -123,6 +123,7 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 }
 
 async function delete_topics() {
+  let error ="";
   await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
   return 0;
 }
