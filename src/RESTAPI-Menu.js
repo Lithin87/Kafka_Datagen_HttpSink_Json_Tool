@@ -29,9 +29,7 @@ app.get('/services', (req, res) => {
 });
 
 app.get('/services/ipaddress', async (req, res) => {
-  await getIPAddress().then(res.status(200).json(ips[1])).catch(m => { console.log("\nVM is NOT created : \n") } )
-  console.log(ips[1]);
-  res.status(204);
+  await getIPAddress().then(  res.status(200).json(ips[1]) ).catch(m => {res.status(409); console.log("\nVM is NOT created : \n") } )
 });
 
 function checkSuccess(s) {
@@ -61,9 +59,12 @@ app.get('/services/:id', (req, res) => {
     case 8:
         requests[8]().then(printSuccess).catch(printError);
         break;
+    case 10:
+        requests[10]().then(printSuccess).catch(printError);
+        break;
     default:
-        res.status(404).json({ message: "Invalid index for GET. Use only 1,2,6,7,8"})
-        console.log('Invalid index for GET. Use only 1,2,6,7,8');
+        res.status(404).json({ message: "Invalid index for GET. Use only 1,2,6,7,8,10"})
+        console.log('Invalid index for GET. Use only 1,2,6,7,8,10');
         break;
 }
 

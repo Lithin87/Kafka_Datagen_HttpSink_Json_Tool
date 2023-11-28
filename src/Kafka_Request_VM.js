@@ -88,7 +88,7 @@ export async function getIPAddress() {
   const BrokerUrl = 'http://' + ipAddress + ':9101';
   global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl];
   }else{
-    global.ips = [];
+    global.ips = "";
     throw Error;
   }
 }

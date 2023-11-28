@@ -132,12 +132,13 @@ async function delete_topics() {
 }
 
 const req6 =  () =>   deleteInstance().catch(e => {return e}); 
-const req7 =  () => cluster_id();
+const req7 =  () => error_page();
 const req8 =  () =>  del_connectors() ;
 const req9 = (msg) => chatgpt(msg) ;
+const req10 = () => error_log() ;
 
 const dum ="";
-export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, req9];
+export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, req9, req10];
 
 const  del_connectors = async () => { 
   let TotalConnectors = 'No Connectors present';
@@ -163,11 +164,27 @@ const  del_connectors = async () => {
 }
 
 
-const  cluster_id = async () => { 
+const  error_page = async () => { 
   const response = await request({ url: ips[0]}).catch(s=> error.del_con = s);
   if ( response.data !== 0)
   { 
-    return ips[1]+"/clusters/"+response.data.kafka_cluster_id+"/management/topics/error_topic/overview";
+    global.cluster_id = response.data.kafka_cluster_id;
+    return ips[1]+"/clusters/"+error_page+"/management/topics/error_topic/overview";
+  }
+}
+
+const  error_log = async () => { 
+  console.log("hhh");
+  if ( cluster_id !== null)
+  { 
+    console.log("nnn"+cluster_id);
+    let error_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/error_topic";
+    let success_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/success_topic";
+
+    const response = await request({ url: error_topic_url }).catch(s=> error.del_con = s);
+    const response1 = await request({ url: success_topic_url }).catch(s=> error.del_con = s);
+
+    return [  response.offsets[0].endOffset , response1.offsets[0].endOffset ] 
   }
 }
 
