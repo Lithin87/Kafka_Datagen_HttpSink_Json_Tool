@@ -169,22 +169,21 @@ const  error_page = async () => {
   if ( response.data !== 0)
   { 
     global.cluster_id = response.data.kafka_cluster_id;
-    return ips[1]+"/clusters/"+error_page+"/management/topics/error_topic/overview";
+    return ips[1]+"/clusters/"+cluster_id+"/management/topics/error_topic/overview";
   }
 }
 
 const  error_log = async () => { 
-  console.log("hhh");
   if ( cluster_id !== null)
   { 
-    console.log("nnn"+cluster_id);
+    console.log("CLUSTER_ID : "+cluster_id);
     let error_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/error_topic";
     let success_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/success_topic";
-
+    
     const response = await request({ url: error_topic_url }).catch(s=> error.del_con = s);
     const response1 = await request({ url: success_topic_url }).catch(s=> error.del_con = s);
-
-    return [  response.offsets[0].endOffset , response1.offsets[0].endOffset ] 
+    
+    return [  response.data.offsets[0].endOffset  , response1.data.offsets[0].endOffset ] 
   }
 }
 
