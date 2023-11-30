@@ -37,55 +37,6 @@ usr/share/confluent-hub-components
 etc/kafka-connect/kafka-connect.properties
 lithin87/ust_sink_connector
 
-{
-  "connect.name": "lithin.personal.ust_data",
-  "fields": [
-    {
-      "name": "store_id",
-      "type": "int"
-    },
-    {
-      "name": "order_lines",
-      "type": {
-        "items": {
-          "connect.name": "lithin.personal.order_line",
-          "fields": [
-            {
-              "name": "product_id",
-              "type": "int"
-            },
-            {
-              "name": "category",
-              "type": "string"
-            },
-            {
-              "name": "quantity",
-              "type": "int"
-            },
-            {
-              "name": "unit_price",
-              "type": "float"
-            },
-            {
-              "name": "net_price",
-              "type": "float"
-            }
-          ],
-          "name": "order_line",
-          "type": "record"
-        },
-        "type": "array"
-      }
-    }
-  ],
-  "name": "ust_data",
-  "namespace": "lithin.personal",
-  "type": "record"
-}
-
-
-
-  console.log("Hello : "+req.body);
 
 value.converter=org.apache.kafka.connect.json.JsonConverter
               
@@ -160,8 +111,8 @@ const machineImage = 'projects/ecstatic-cosmos-387220/global/machineImages/kafka
               apt install -y docker.io
               curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               chmod +x /usr/local/bin/docker-compose
-              git clone https://github.com/Lithin87/Kafka_Datagen_HttpSink_Json_Tool.git /home/ravindcable5/app
-              cd /home/ravindcable5/app/Resources && docker-compose up -d
+              git clone https://github.com/Lithin87/Kafka_Datagen_HttpSink_Json_Tool.git /home/ravindcable6/app
+              cd /home/ravindcable6/app/Resources && docker-compose up -d
             `,
           },
         ],
@@ -196,11 +147,11 @@ sudo docker pull confluentinc/cp-zookeeper:7.3.3
   "connect.name": "lithin.personal.ust_data",
   "fields": [
     {
-      "name": "store_id",
+      "name": "boots_id",
       "type": "int"
     },
     {
-      "name": "order_lines",
+      "name": "delhi_lines",
       "type": {
         "items": {
           "connect.name": "lithin.personal.order_line",
@@ -244,3 +195,5 @@ sudo docker pull confluentinc/cp-zookeeper:7.3.3
 {
    "data": "pls give a  sample json message with first key named as name, age, address, car"
 }
+
+// http://34.133.7.160:8082/v3/clusters/MnChXrKqS3CQZ0Ay6vRjMw/topics/HttpSinkConnectorConnector_0-error

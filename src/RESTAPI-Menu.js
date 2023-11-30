@@ -29,9 +29,7 @@ app.get('/services', (req, res) => {
 });
 
 app.get('/services/ipaddress', async (req, res) => {
-  await getIPAddress().catch(m => { console.log("\nVM is NOT created : \n") } )
-  console.log(ips[1]);
-  res.status(200).json(ips[1]);
+  await getIPAddress().then(  res.status(200).json(ips[1]) ).catch(m => {res.status(409); console.log("\nVM is NOT created : \n") } )
 });
 
 function checkSuccess(s) {
@@ -61,9 +59,12 @@ app.get('/services/:id', (req, res) => {
     case 8:
         requests[8]().then(printSuccess).catch(printError);
         break;
+    case 10:
+        requests[10]().then(printSuccess).catch(printError);
+        break;
     default:
-        res.status(404).json({ message: "Invalid index for GET. Use only 1,2,6,7,8"})
-        console.log('Invalid index for GET. Use only 1,2,6,7,8');
+        res.status(404).json({ message: "Invalid index for GET. Use only 1,2,6,7,8,10"})
+        console.log('Invalid index for GET. Use only 1,2,6,7,8,10');
         break;
 }
 
@@ -73,24 +74,24 @@ app.get('/services/:id', (req, res) => {
 app.post('/services/:id', (req, res) => {
   const itemId = req.params.id;
   const body = req.body;
-  const category = req.query.category;
-
+  // console.dir(body, { depth : null});
+  const rate = req.query.rate;
   const printSuccess = s => {  res.status(200).json({ message: s })};
   const printError = error => {  res.status(400).json({ message: "Error occured. "+error})};
 
   
     switch (parseInt(itemId)) {
       case 3:
-          requests[3](body.schema,body.url).then(printSuccess);
+          requests[3](body.schema,body.url,rate).then(printSuccess);
           break;
       case 4:
-          requests[4](body.schema,body.url).then(printSuccess).catch(printError);
+          requests[4](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 5:
-          requests[5](body.schema,body.url).then(printSuccess).catch(printError);
+          requests[5](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 9:
-          requests[9](body.data).then((s) => res.status(200).send(s)).catch(printError);
+          requests[9](body.data).then(printSuccess).catch(printError);
           break;
       default:
         res.status(404).json({ message: "Invalid index for POST. Use only 3,4,5"})

@@ -1,12 +1,12 @@
 import { InstancesClient, ZoneOperationsClient } from '@google-cloud/compute';
 import { auth } from 'google-auth-library';
 
-const project = 'cloudtest-396310';
+const project = 'civil-being-405417';
 const zone = 'us-central1-a'
 const instanceName = 'kafkavm'
-const machineType = 'e2-standard-4';
-const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';
-const machineImage = 'projects/cloudtest-396310/global/machineImages/mimic-data-framework-ust'; 
+const machineType = 'e2-standard-4';  // not used becasue of machine image
+const sourceImage = 'projects/debian-cloud/global/images/family/debian-11';  // not used becasue of machine image
+const machineImage = 'projects/civil-being-405417/global/machineImages/mimic-data-framework-ust'; 
 
 process.env.GOOGLE_APPLICATION_CREDENTIALS = 'gcloud.json';
 const authClient = await auth.getClient({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
@@ -29,8 +29,8 @@ export async function createInstance() {
             key: 'startup-script',
             value: `
               #!/bin/bash
-              git clone https://github.com/Lithin87/Kafka_Datagen_HttpSink_Json_Tool.git /home/ravindcable5/app
-              cd /home/ravindcable5/app/Resources && docker-compose up `,
+              git clone https://github.com/Lithin87/Kafka_Datagen_HttpSink_Json_Tool.git /home/ravindcable6/app
+              cd /home/ravindcable6/app/Resources && docker-compose up `,
           },
         ],
       },
@@ -80,11 +80,17 @@ export async function getIPAddress() {
   const computeClient = new InstancesClient();
   const instances = await computeClient.get({ instance: instanceName, project, zone: zone });
   const ipAddress = instances[0]["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
+  if(ipAddress)
+  {
   const ConnectorBaseUrl = 'http://' + ipAddress + ':8083';
   const ClusterUrl = 'http://' + ipAddress + ':9021';
   const SchemaRegistryUrl = 'http://' + ipAddress + ':8081';
   const BrokerUrl = 'http://' + ipAddress + ':9101';
   global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl];
+  }else{
+    global.ips = "";
+    throw Error;
+  }
 }
 
 
