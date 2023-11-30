@@ -213,7 +213,7 @@ const chatgpt = async (msg) =>  {
   msg = msg + ". Also return in json format "
     console.dir(msg, { depth : null});
     if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
-    const res = await api.sendMessage(msg)
+    const res = await api.sendMessage(msg);
     const matches = res.text.match(/```([\s\S]*?)```/g);
     return matches[0].replace(/```/g, '').replace('json', '');
   }
