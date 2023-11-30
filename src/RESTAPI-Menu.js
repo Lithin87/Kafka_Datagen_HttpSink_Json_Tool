@@ -91,7 +91,7 @@ app.post('/services/:id', (req, res) => {
           requests[5](body.schema,body.url,rate).then(printSuccess).catch(printError);
           break;
       case 9:
-          requests[9](body.data).then(printSuccess).catch(printError);
+          requests[9](body.schema).then(printSuccess).catch(printError);
           break;
       default:
         res.status(404).json({ message: "Invalid index for POST. Use only 3,4,5"})

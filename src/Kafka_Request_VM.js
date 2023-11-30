@@ -87,7 +87,8 @@ try {
   const ClusterUrl = 'http://' + ipAddress + ':9021';
   const SchemaRegistryUrl = 'http://' + ipAddress + ':8081';
   const BrokerUrl = 'http://' + ipAddress + ':9101';
-  global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl];
+  const RestUrl = 'http://' + ipAddress + ':8082';
+  global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl , RestUrl];
   }else throw Error;
 }catch
 {

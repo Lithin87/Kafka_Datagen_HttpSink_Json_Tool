@@ -126,6 +126,7 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 }
 
 async function delete_topics() {
+  await get_clusterId();
   let error ="";
   await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
   return 0;
@@ -137,20 +138,16 @@ const req8 =  () =>  del_connectors() ;
 const req9 = (msg) => chatgpt(msg) ;
 const req10 = () => error_log() ;
 
-const dum ="";
-export const requests = [dum, req1, req2, req3, req4,req5, req6, req7 , req8, req9, req10];
+export const requests = ["dum", req1, req2, req3, req4,req5, req6, req7 , req8, req9, req10];
 
 const  del_connectors = async () => { 
   let TotalConnectors = 'No Connectors present';
   let STATUS =[];
+  await get_clusterId();
 
-  // http://34.133.7.160:8082/v3/clusters/MnChXrKqS3CQZ0Ay6vRjMw/topics/HttpSinkConnectorConnector_0-error
-  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
-  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
-  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
-  // await request({ url: ips[2] + '/subjects/' + "Template_Schema-value", method: 'DELETE' }).catch(s => error = s.code);
-
-
+  let topic_url =   ips[4] + "/v3/clusters/"+  cluster_id + "/topics/error_topic" ;
+  await request({ url: topic_url , method: 'DELETE'}).catch(s=>  s);
+ 
   const response = await  request({ url: ips[0]+'/connectors'}).catch(s=> error.del_con = s);
   if ( response.data.length  !== 0)
   {
@@ -164,19 +161,11 @@ const  del_connectors = async () => {
 }
 
 
-const  error_page = async () => { 
-  const response = await request({ url: ips[0]}).catch(s=> error.del_con = s);
-  if ( response.data !== 0)
-  { 
-    global.cluster_id = response.data.kafka_cluster_id;
-    return ips[1]+"/clusters/"+cluster_id+"/management/topics/error_topic/overview";
-  }
-}
+const  error_page = async () => { return ips[1]+"/clusters/"+cluster_id+"/management/topics/error_topic/overview"}
 
 const  error_log = async () => { 
   if ( cluster_id !== null)
   { 
-    console.log("CLUSTER_ID : "+cluster_id);
     let error_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/error_topic";
     let success_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/success_topic";
     
@@ -210,9 +199,9 @@ const chatgpt = async (msg) =>  {
   const api = new ChatGPTAPI({
     apiKey: process.env.OPENAI_API_KEY,
   })
-  msg = msg + ". Also return in json format "
-    console.dir(msg, { depth : null});
-    if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
+  // console.dir(msg, { depth : null});
+  if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
+    msg = msg + ". Also return in json format "
     const res = await api.sendMessage(msg);
     const matches = res.text.match(/```([\s\S]*?)```/g);
     return matches[0].replace(/```/g, '').replace('json', '');
@@ -223,16 +212,10 @@ const printData = (response) => { let gh = jp.query(response, "$..statusText",1)
 
 const printDataFull = (response) => { console.log(response.data);  return response.data} ; 
 
-
-
-
-
-
-
-
-  
-
-
-
-
+async function get_clusterId() {
+  const response = await request({ url: ips[0] }).catch(s => error.del_con = s);
+  if (response.data !== 0) {
+    global.cluster_id = response.data.kafka_cluster_id;
+  }
+}
 
