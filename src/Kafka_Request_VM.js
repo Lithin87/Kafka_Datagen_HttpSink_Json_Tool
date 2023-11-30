@@ -77,6 +77,7 @@ export async function deleteInstance() {
 
 
 export async function getIPAddress() {
+try {
   const computeClient = new InstancesClient();
   const instances = await computeClient.get({ instance: instanceName, project, zone: zone });
   const ipAddress = instances[0]["networkInterfaces"][0]["accessConfigs"][0]["natIP"]
@@ -87,10 +88,12 @@ export async function getIPAddress() {
   const SchemaRegistryUrl = 'http://' + ipAddress + ':8081';
   const BrokerUrl = 'http://' + ipAddress + ':9101';
   global.ips = [ConnectorBaseUrl, ClusterUrl, SchemaRegistryUrl, BrokerUrl];
-  }else{
+  }else throw Error;
+}catch
+{
     global.ips = "";
     throw Error;
-  }
+}
 }
 
 
