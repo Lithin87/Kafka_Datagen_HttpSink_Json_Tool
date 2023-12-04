@@ -145,9 +145,13 @@ const  del_connectors = async () => {
   let STATUS =[];
   await get_clusterId();
 
-  let topic_url =   ips[4] + "/v3/clusters/"+  cluster_id + "/topics/error_topic" ;
-  await request({ url: topic_url , method: 'DELETE'}).catch(s=>  s);
- 
+  const topicNames = ['error_topic', 'success_topic'];
+  
+  for (const topicName of topicNames) {
+    const topicUrl =  ips[4] + "/v3/clusters/"+  cluster_id + "/topics/"+ topicName ;
+    await request({ url: topicUrl, method: 'DELETE' }).catch((error) => error);
+  }
+  
   const response = await  request({ url: ips[0]+'/connectors'}).catch(s=> error.del_con = s);
   if ( response.data.length  !== 0)
   {
