@@ -112,6 +112,7 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 
 const req4 = async (schema,url,rate) => { 
 const response = await delete_topics();
+console.log("schema"+schema);
 if (typeof schema === 'object')  schema = JSON.stringify(schema);
 const SourceConnector =  await connector_call(schema_replace_f(schema,rate));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
@@ -206,9 +207,13 @@ const chatgpt = async (msg) =>  {
   // console.dir(msg, { depth : null});
   if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
     msg = msg + ". Also return in json format "
+    // const jsonData = '{"name": "lithin", "company": "UST", "age": "23", "account": "BOOTS"}';
+  //  const jsObject = JSON.parse(jsonData);
+    // var req4 = req4(jsObject,undefined,200);
     const res = await api.sendMessage(msg);
-    const matches = res.text.match(/```([\s\S]*?)```/g);
-    return matches[0].replace(/```/g, '').replace('json', '');
+    const matches = res.text.match(/```([\s\S]*?)```/g)[0].replace(/```/g, '').replace('json', '');
+    // return {matches , req4} ;
+    return matches ;
   }
 
 
