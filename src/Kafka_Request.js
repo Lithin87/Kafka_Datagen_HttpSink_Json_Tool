@@ -21,7 +21,8 @@ let template = {
     "schema.string": "{\"connect.name\":\"ust.boots\",\"fields\":[{\"name\":\"Name\",\"type\":{\"type\":\"string\",\"arg.properties\":{\"regex\":\"User_[1-9]{0,1}\"}}},{\"name\":\"office\",\"type\":\"string\"},{\"name\":\"user_id\",\"type\":\"string\"},{\"name\":\"employee_id\",\"type\":\"long\"},{\"name\":\"cubicle_num\",\"type\":\"int\"}],\"name\":\"boots\",\"namespace\":\"ust\",\"type\":\"record\"}",
     "tasks.max": "1",
     "kafka.topic": "Template_Schema",
-    "max.interval" : "500"
+    "max.interval" : "500",
+    "iterations": "-1"
   }
 };
 
@@ -33,7 +34,8 @@ let file_schema = {
     "schema.string": "{\"connect.name\":\"ust.boots\",\"name\":\"boots\",\"namespace\":\"ust\",\"type\":\"record\",\"fields\":[{\"name\":\"store_id\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"order_lines\",\"type\":{\"type\":\"array\",\"items\":{\"name\":\"order_line\",\"type\":\"record\",\"fields\":[{\"name\":\"product_id\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"category\",\"type\":{\"type\":\"string\",\"arg.properties\":{\"regex\":\"User_[1-9]{0,1}\"}}},{\"name\":\"quantity\",\"type\":{\"type\":\"int\",\"arg.properties\":{\"range\":{\"min\":1,\"max\":100}}}},{\"name\":\"unit_price\",\"type\":{\"type\":\"float\",\"arg.properties\":{\"range\":{\"min\":0.1,\"max\":10}}}},{\"name\":\"net_price\",\"type\":{\"type\":\"float\",\"arg.properties\":{\"range\":{\"min\":0.1,\"max\":10}}}}]},\"arg.properties\":{\"length\":{\"min\":1,\"max\":5}}}}]}",
     "tasks.max": "1",
     "kafka.topic": "Template_Schema",
-    "max.interval" : "500"
+    "max.interval" : "500",
+    "iterations": "-1"
   }
 };
 
@@ -82,14 +84,16 @@ function flattenObject(obj) {
   return result;
 }
 
-const schema_replace_s = (schema,rate) => { 
+const schema_replace_s = (schema,rate,set) => { 
   if( schema ) ld.set(template, ['config', 'schema.string'], schema); 
   if( rate ) ld.set(template, ['config', 'max.interval'], rate); 
+  if( set ) ld.set(template, ['config', 'iterations'], set);  
   return JSON.stringify(template)}
 
-const schema_replace_f = (json,rate) => {
+const schema_replace_f = (json,rate,set) => {
    if( json ) ld.set(file_schema, ['config', 'schema.string'], JSON.stringify(generate(json)));  
    if( rate ) ld.set(file_schema, ['config', 'max.interval'], rate);  
+   if( set ) ld.set(file_schema, ['config', 'iterations'], set);  
    return JSON.stringify(file_schema) }
 
 const schema_replace_t = (template_user) => { if( template_user ) return template_user; else  return JSON.stringify(template)}
@@ -103,23 +107,23 @@ const connector_call = (template) =>  request({ url: ips[0]+'/connectors', metho
 const req1 =  () =>  createInstance().catch(e => {return e});
 const req2 =   () => request({ url: ips[0]+'/connector-plugins' }).then( printDataFull ).catch(printError)    
 
-const  req3 = async (schema,url,rate) =>     { 
+const  req3 = async (schema,url,rate,set) =>     { 
 const response = await delete_topics();
-const SourceConnector  =  await connector_call(schema_replace_s(JSON.stringify(schema),rate));
+const SourceConnector  =  await connector_call(schema_replace_s(JSON.stringify(schema),rate,set));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
-const req4 = async (schema,url,rate) => { 
+const req4 = async (schema,url,rate,set) => { 
 const response = await delete_topics();
 console.log("schema"+schema);
 if (typeof schema === 'object')  schema = JSON.stringify(schema);
-const SourceConnector =  await connector_call(schema_replace_f(schema,rate));
+const SourceConnector =  await connector_call(schema_replace_f(schema,rate,set));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
 return Object.entries({SourceConnector , DestinationConnector}).map(([key, value]) => `${key} : ${value[0]}`).join('\n');
 }
 
-const req5 = async (schema,url) => { 
+const req5 = async (schema) => { 
 const response = await delete_topics();
 const SourceConnector =  await connector_call(schema_replace_t(schema));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
@@ -146,7 +150,7 @@ const  del_connectors = async () => {
   let STATUS =[];
   await get_clusterId();
 
-  const topicNames = ['error_topic', 'success_topic'];
+  const topicNames = ['error_topic', 'success_topic' , 'Template_Schema'];
   
   for (const topicName of topicNames) {
     const topicUrl =  ips[4] + "/v3/clusters/"+  cluster_id + "/topics/"+ topicName ;
@@ -208,11 +212,13 @@ const chatgpt = async (msg) =>  {
   if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
     msg = msg + ". Also return in json format "
     // const jsonData = '{"name": "lithin", "company": "UST", "age": "23", "account": "BOOTS"}';
-  //  const jsObject = JSON.parse(jsonData);
-    // var req4 = req4(jsObject,undefined,200);
+    // const jsObject = JSON.parse(jsonData);
+    // var req4_res = await req4(jsObject,undefined,200);
+    // console.dir(req4_res, { depth : null});
     const res = await api.sendMessage(msg);
     const matches = res.text.match(/```([\s\S]*?)```/g)[0].replace(/```/g, '').replace('json', '');
-    // return {matches , req4} ;
+    console.dir(matches, { depth : null});
+    // return {matches , req4_res} ;
     return matches ;
   }
 
