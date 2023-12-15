@@ -4,6 +4,7 @@ import ld from 'lodash';
 import generate  from './Avro-schema-generator.js';
 import { createInstance, deleteInstance } from './Kafka_Request_VM.js';
 import { ChatGPTAPI } from 'chatgpt';
+import  webSocketManager   from './RESTAPI-Menu.js'
 
 gaxios.instance.defaults = {
   headers: {
@@ -139,9 +140,9 @@ async function delete_topics() {
 
 const req6 =  () =>   deleteInstance().catch(e => {return e}); 
 const req7 =  () => error_page();
-const req8 =  () =>  del_connectors() ;
+const req8 = async () =>  del_connectors() ;
 const req9 = (msg) => chatgpt(msg) ;
-const req10 = () => error_log() ;
+const req10 = () => offset_nos() ;
 
 export const requests = ["dum", req1, req2, req3, req4,req5, req6, req7 , req8, req9, req10];
 
@@ -172,7 +173,7 @@ const  del_connectors = async () => {
 
 const  error_page = async () => { return ips[1]+"/clusters/"+cluster_id+"/management/topics/error_topic/overview"}
 
-const  error_log = async () => { 
+const  offset_nos = async () => { 
   if ( cluster_id !== null)
   { 
     let error_topic_url =  ips[1]+"/2.0/metrics/"+ cluster_id+ "/topic/offsets/error_topic";
@@ -211,14 +212,18 @@ const chatgpt = async (msg) =>  {
   // console.dir(msg, { depth : null});
   if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
     msg = msg + ". Also return in json format "
-    // const jsonData = '{"name": "lithin", "company": "UST", "age": "23", "account": "BOOTS"}';
-    // const jsObject = JSON.parse(jsonData);
-    // var req4_res = await req4(jsObject,undefined,200);
+    const jsonData = '{"name": "lithin", "company": "UST", "age": "23", "account": "BOOTS"}';
+    const jsObject = JSON.parse(jsonData);
+    var req4_res = await req4(jsonData);
+    var req4_del = setTimeout(del_connectors, 4000);
     // console.dir(req4_res, { depth : null});
     const res = await api.sendMessage(msg);
     const matches = res.text.match(/```([\s\S]*?)```/g)[0].replace(/```/g, '').replace('json', '');
     console.dir(matches, { depth : null});
     // return {matches , req4_res} ;
+    // var message = { type : "req4" , "status" : "on" };
+    webSocketManager.sendMessageToClient( "Server", req4_res);
+    webSocketManager.sendMessageToClient( "Server", req4_del);
     return matches ;
   }
 
@@ -234,3 +239,19 @@ async function get_clusterId() {
   }
 }
 
+
+
+// async function someAsyncFunction() {
+
+//   const clientId = 'someClientId';
+//   const messageType = 'customMessageType';
+//   const messageData = { content: 'Hello from someModule!' };
+//   await sleep(100);
+//   webSocketManager.sendMessageToClient(clientId, messageType, messageData);
+// }
+
+// someAsyncFunction();
+
+// function sleep(ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }

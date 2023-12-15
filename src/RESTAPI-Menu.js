@@ -3,11 +3,15 @@ import { requests } from './Kafka_Request.js';
 import { getIPAddress } from './Kafka_Request_VM.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from  'http';
+import WebSocketManager from './WebSocketManager.js';
 
 const app = express();
 app.use(express.json());
 dotenv.config();
 app.use(cors({ origin: process.env.FRONTEND_HOST })); 
+const server = http.createServer(app);
+export default new WebSocketManager(server);
 
 
 let services = [];
@@ -110,7 +114,7 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
