@@ -117,7 +117,7 @@ return Object.entries({SourceConnector , DestinationConnector}).map(([key, value
 
 const req4 = async (schema,url,rate,set) => { 
 const response = await delete_topics();
-console.log("schema"+schema);
+// console.log("schema"+schema);
 if (typeof schema === 'object')  schema = JSON.stringify(schema);
 const SourceConnector =  await connector_call(schema_replace_f(schema,rate,set));
 const DestinationConnector = await (connector_call(schema_replace_url(url)));
@@ -147,7 +147,6 @@ const req10 = () => offset_nos() ;
 export const requests = ["dum", req1, req2, req3, req4,req5, req6, req7 , req8, req9, req10];
 
 const  del_connectors = async () => { 
-  let TotalConnectors = 'No Connectors present';
   let STATUS =[];
   await get_clusterId();
 
@@ -165,9 +164,10 @@ const  del_connectors = async () => {
        request({ url: ips[0]+`/connectors/${element}`, method: 'delete' }); 
        STATUS.push(element + " : DELETED")
       });
+      webSocketManager.sendMessageToClient( "Server", { type : "req8" , msg : "SourceConnector : Deleted \nDestinationConnector : Deleted" } );
     return "SourceConnector : Deleted \nDestinationConnector : Deleted";
 }
-  return TotalConnectors;
+  return 'No Connectors present';
 }
 
 
@@ -212,18 +212,14 @@ const chatgpt = async (msg) =>  {
   // console.dir(msg, { depth : null});
   if (msg == null || Object.keys(msg).length === 0)  return "Pls send json data"; 
     msg = msg + ". Also return in json format "
-    const jsonData = '{"name": "lithin", "company": "UST", "age": "23", "account": "BOOTS"}';
-    const jsObject = JSON.parse(jsonData);
-    var req4_res = await req4(jsonData);
-    var req4_del = setTimeout(del_connectors, 4000);
-    // console.dir(req4_res, { depth : null});
+    
     const res = await api.sendMessage(msg);
-    const matches = res.text.match(/```([\s\S]*?)```/g)[0].replace(/```/g, '').replace('json', '');
-    console.dir(matches, { depth : null});
-    // return {matches , req4_res} ;
-    // var message = { type : "req4" , "status" : "on" };
-    webSocketManager.sendMessageToClient( "Server", req4_res);
-    webSocketManager.sendMessageToClient( "Server", req4_del);
+    const matches1 = res.text.match(/```([\s\S]*?)```/g);
+    const matches = matches1[0].replace(/```/g, '').replace('json', '');
+    // console.dir(matches, { depth : null});
+    var req4_res = await req4(matches, undefined, 120 , undefined);
+    var req4_del = setTimeout(del_connectors, 16000);
+    webSocketManager.sendMessageToClient( "Server", { type : "req4" , msg : req4_res } );
     return matches ;
   }
 
@@ -238,20 +234,3 @@ async function get_clusterId() {
     global.cluster_id = response.data.kafka_cluster_id;
   }
 }
-
-
-
-// async function someAsyncFunction() {
-
-//   const clientId = 'someClientId';
-//   const messageType = 'customMessageType';
-//   const messageData = { content: 'Hello from someModule!' };
-//   await sleep(100);
-//   webSocketManager.sendMessageToClient(clientId, messageType, messageData);
-// }
-
-// someAsyncFunction();
-
-// function sleep(ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
