@@ -9,13 +9,9 @@ class WebSocketManager {
           credentials: true
         }
       });
-    this.setupConnectionHandler();
-  }
-
-  setupConnectionHandler() {
     this.io.on('connection', (socket) => {
-      console.log('WebSocket client connected : '+socket.id);
-    });
+        console.log('WebSocket client connected : '+socket.id);
+      });
   }
 
   sendMessageToClient(messageType, messageData) {
